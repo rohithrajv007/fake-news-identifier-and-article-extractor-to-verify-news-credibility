@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <i class="fas fa-newspaper fa-2x pulse-animation"></i>
+                <h1>Fake News Detector</h1>
+            </div>
+            <p class="tagline">Your trusted tool for news verification and fact-checking</p>
+        </header>
+
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="news-input" placeholder="Enter news statement to verify...">
+                <button id="verify-btn">Verify <i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="search-hint">Try: "Scientists discover a new planet in our solar system"</div>
+        </div>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p>Analyzing news from multiple sources...</p>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="results" id="results-container">
+            <div class="verdict-container">
+                <h2><i class="fas fa-gavel"></i> Verification Result</h2>
+                <div class="verdict" id="verdict">
+                    <div class="verdict-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="verdict-details">
+                        <h3 id="verdict-text">Unverified</h3>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidence-fill" style="width: 0%"></div>
+                        </div>
+                        <p class="confidence-text">Confidence: <span id="confidence-text">0%</span></p>
+                        <p id="verdict-message">Please enter a news statement to verify</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="articles-container">
+                <h2><i class="fas fa-list-alt"></i> Related Articles</h2>
+                <div class="articles-header">
+                    <p id="articles-count">0 articles found</p>
+                    <div class="articles-filter">
+                        <label for="filter-select">Filter by:</label>
+                        <select id="filter-select">
+                            <option value="all">All Sources</option>
+                            <option value="news">News API</option>
+                            <option value="fact-check">Fact Check API</option>
+                            <option value="web">Web Search</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="articles-list" class="articles-list">
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>Enter a news statement to find related articles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="how-it-works">
+            <h2><i class="fas fa-cogs"></i> How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3>News API</h3>
+                        <p>Searches through thousands of news sources for related articles</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3>Fact Check API</h3>
+                        <p>Checks against verified fact-checking organizations</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3>Web Scraping</h3>
+                        <p>Analyzes web search results for additional verification</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonials">
+            <h2><i class="fas fa-quote-left"></i> What Users Say</h2>
+            <div class="testimonials-container">
+                <div class="testimonial">
+                    <p>"This tool helped me identify misinformation before sharing it with my friends."</p>
+                    <div class="testimonial-author">- Varun Shivram .</div>
+                </div>
+                <div class="testimonial">
+                    <p>"Simple to use and provides reliable results. Highly recommended!"</p>
+                    <div class="testimonial-author">- Donald Trump.</div>
+                </div>
+                <div class="testimonial">
+                    <p>"I use this before believing any controversial news I read online."</p>
+                    <div class="testimonial-author">- narendra Modi.</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Fake News Detector</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-info-circle"></i> About</a>
+                    <a href="#"><i class="fas fa-shield-alt"></i> Privacy</a>
+                    <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>© 2025 Fake News Detector | Developed by Yathindra And Varun</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const newsInput = document.getElementById('news-input');
+            const verifyBtn = document.getElementById('verify-btn');
+            const loader = document.getElementById('loader');
+            const resultsContainer = document.getElementById('results-container');
+            const verdictText = document.getElementById('verdict-text');
+            const verdictIcon = document.querySelector('.verdict-icon i');
+            const confidenceFill = document.getElementById('confidence-fill');
+            const confidenceText = document.getElementById('confidence-text');
+            const verdictMessage = document.getElementById('verdict-message');
+            const articlesList = document.getElementById('articles-list');
+            const articlesCount = document.getElementById('articles-count');
+            const filterSelect = document.getElementById('filter-select');
+
+            // Hide loader initially
+            loader.style.display = 'none';
+
+            // Add event listener for verify button
+            verifyBtn.addEventListener('click', verifyNews);
+            newsInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifyNews();
+                }
+            });
+
+            // Add animation to search input on focus
+            newsInput.addEventListener('focus', function() {
+                document.querySelector('.search-wrapper').classList.add('active');
+            });
+            
+            newsInput.addEventListener('blur', function() {
+                document.querySelector('.search-wrapper').classList.remove('active');
+            });
+
+            // Store articles data globally for filtering
+            let allArticles = [];
+
+            // Add event listener for filter select
+            filterSelect.addEventListener('change', function() {
+                filterArticles(this.value);
+            });
+
+            function filterArticles(filterValue) {
+                if (!allArticles.length) return;
+                
+                let filteredArticles = allArticles;
+                if (filterValue !== 'all') {
+                    const filterMap = {
+                        'news': 'News API',
+                        'fact-check': 'Fact Check API',
+                        'web': 'Web Search'
+                    };
+                    filteredArticles = allArticles.filter(article => article.type === filterMap[filterValue]);
+                }
+                
+                displayArticles(filteredArticles);
+                articlesCount.textContent = `${filteredArticles.length} articles found`;
+            }
+
+            function verifyNews() {
+                const query = newsInput.value.trim();
+                
+                if (!query) {
+                    showNotification('Please enter a news statement to verify', 'warning');
+                    return;
+                }
+
+                // Show loader and hide results
+                loader.style.display = 'flex';
+                resultsContainer.style.display = 'none';
+
+                // Simulate progress bar animation
+                const progressFill = document.querySelector('.progress-fill');
+                progressFill.style.width = '0%';
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 20;
+                    if (progress > 90) progress = 90;
+                    progressFill.style.width = progress + '%';
+                }, 500);
+
+                // Make API request
+                fetch('/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: query })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '100%';
+                    
+                    setTimeout(() => {
+                        if (data.success) {
+                            displayResults(data);
+                        } else {
+                            showNotification(data.message || 'An error occurred', 'error');
+                        }
+                        
+                        // Hide loader and show results
+                        loader.style.display = 'none';
+                        resultsContainer.style.display = 'block';
+                    }, 500);
+                })
+                .catch(error => {
+                    clearInterval(progressInterval);
+                    console.error('Error:', error);
+                    showNotification('An error occurred while verifying the news', 'error');
+                    
+                    // Hide loader
+                    loader.style.display = 'none';
+                });
+            }
+
+            function showNotification(message, type) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}"></i>
+                    <span>${message}</span>
+                `;
+                
+                // Add to document
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+                
+                // Remove after a delay
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+
+            function displayResults(data) {
+                // Update verdict
+                verdictText.textContent = data.verdict;
+                confidenceFill.style.width = data.confidence + '%';
+                confidenceText.textContent = data.confidence + '%';
+                verdictMessage.textContent = data.message;
+
+                // Update verdict icon
+                verdictIcon.className = '';
+                if (data.verdict.includes('True')) {
+                    verdictIcon.className = 'fas fa-check-circle';
+                    document.querySelector('.verdict').className = 'verdict true';
+                } else if (data.verdict.includes('False')) {
+                    verdictIcon.className = 'fas fa-times-circle';
+                    document.querySelector('.verdict').className = 'verdict false';
+                } else {
+                    verdictIcon.className = 'fas fa-question-circle';
+                    document.querySelector('.verdict').className = 'verdict uncertain';
+                }
+
+                // Store all articles for filtering
+                allArticles = data.articles;
+
+                // Update articles count
+                articlesCount.textContent = `${data.articlesCount} articles found`;
+
+                // Display articles
+                displayArticles(data.articles);
+                
+                // Reset filter
+                filterSelect.value = 'all';
+                
+                // Scroll to results
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function displayArticles(articles) {
+                // Display articles
+                if (articles.length > 0) {
+                    articlesList.innerHTML = '';
+                    articles.forEach(article => {
+                        const articleEl = document.createElement('div');
+                        articleEl.className = 'article';
+
+                        let typeIconClass = 'fas fa-newspaper';
+                        let typeClass = '';
+                        if (article.type === 'Fact Check API') {
+                            typeIconClass = 'fas fa-check-double';
+                            typeClass = 'fact-check';
+                        } else if (article.type === 'Web Search') {
+                            typeIconClass = 'fas fa-globe';
+                            typeClass = 'web-search';
+                        } else {
+                            typeClass = 'news-api';
+                        }
+
+                        articleEl.innerHTML = `
+                            <div class="article-type ${typeClass}">
+                                <i class="${typeIconClass}"></i>
+                                <span>${article.type}</span>
+                            </div>
+                            <h3>${article.title}</h3>
+                            <p class="article-source">Source: <span>${article.source}</span></p>
+                            ${article.rating ? `<p class="article-rating">Rating: <span class="rating">${article.rating}</span></p>` : ''}
+                            ${article.publishedAt ? `<p class="article-date">Published: <span>${new Date(article.publishedAt).toLocaleDateString()}</span></p>` : ''}
+                            <a href="${article.url}" target="_blank" class="article-link">
+                                <i class="fas fa-external-link-alt"></i> Read Full Article
+                            </a>
+                        `;
+                        articlesList.appendChild(articleEl);
+                    });
+                } else {
+                    articlesList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p>No related articles found. This might be fake news.</p>
+                            <button class="suggest-btn">Suggest sources to check</button>
+                        </div>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
